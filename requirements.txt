@@ -4,3 +4,8 @@ openai
 python-dotenv
 pydantic
 pytest
+chromadb
+sentence-transformers
+tenacity
+httpx
+pytest-mock

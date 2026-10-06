@@ -6,8 +6,13 @@ c'est le SEUL fichier à modifier — le reste du code (agent.py) ne connaît
 que l'interface OpenAI-style (chat.completions.create avec `tools=`).
 """
 import os
+from pathlib import Path
 
+from dotenv import load_dotenv
 from openai import OpenAI
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+load_dotenv(PROJECT_ROOT / ".env")
 
 GROQ_BASE_URL = "https://api.groq.com/openai/v1"
 DEFAULT_MODEL = "openai/gpt-oss-120b"

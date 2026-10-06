@@ -1,44 +1,55 @@
 """
-Boucle d'agent minimale — la même structure que ton diagramme d'activités
-(Thought -> Action -> Observation, répété jusqu'à conclusion ou max étapes),
-mais avec un seul outil factice pour l'instant.
+Boucle d'agent (Thought -> Action -> Observation) avec 4 outils :
+search_product, create_order, confirm_order, cancel_order (WooCommerce).
+
+NOTE (interim, avant B.4) : `history` permet au client de renvoyer les messages
+precedents, pour que la confirmation en 2 temps fonctionne des maintenant, meme
+sans ConversationMemory persistante cote serveur. A remplacer par une vraie
+memoire serveur en B.4.
 """
 import json
 
 from app.llm_client import get_client, get_model
-from app.tools.hello_tool import TOOL_SCHEMA, TOOLS_REGISTRY
+from app.tools.order_tools import TOOL_SCHEMAS as ORDER_SCHEMAS, TOOLS_REGISTRY as ORDER_TOOLS
+from app.tools.search_product_tool import TOOL_SCHEMA as SEARCH_SCHEMA, TOOLS_REGISTRY as SEARCH_TOOLS
 
-MAX_STEPS = 4
+MAX_STEPS = 6
 
 SYSTEM_PROMPT = (
-    "Tu es l'agent de démonstration du projet P059. "
-    "Tu disposes d'un seul outil pour l'instant : get_current_time. "
-    "Utilise-le uniquement si c'est pertinent pour répondre à la demande, "
-    "sinon réponds directement en langage naturel."
+    "Tu es un agent d'assistance a l'achat. Tu disposes de 4 outils :\n"
+    "- search_product : pour trouver un produit dans le catalogue\n"
+    "- create_order : pour preparer une commande (statut 'pending', reversible)\n"
+    "- confirm_order : pour CONFIRMER une commande (irreversible)\n"
+    "- cancel_order : pour annuler une commande en attente\n\n"
+    "REGLE ABSOLUE : n'appelle JAMAIS confirm_order sans que le client ait "
+    "explicitement confirme dans un message precedent (ex: 'oui', 'confirme', "
+    "'vas-y'). Apres create_order, presente toujours le recapitulatif "
+    "(produit, quantite, prix total) et demande confirmation avant de continuer."
 )
 
+TOOLS = [SEARCH_SCHEMA] + ORDER_SCHEMAS
+TOOLS_REGISTRY = {**SEARCH_TOOLS, **ORDER_TOOLS}
 
-def run_agent(user_message: str) -> dict:
-    """Exécute la boucle d'agent et renvoie la réponse finale + une trace des étapes."""
+
+def run_agent(user_message: str, history: list[dict] | None = None) -> dict:
     client = get_client()
     model = get_model()
 
-    messages = [
-        {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": user_message},
-    ]
+    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+    messages.extend(history or [])
+    messages.append({"role": "user", "content": user_message})
+
     trace = []
 
     for step in range(MAX_STEPS):
         response = client.chat.completions.create(
             model=model,
             messages=messages,
-            tools=[TOOL_SCHEMA],
+            tools=TOOLS,
         )
         choice = response.choices[0].message
 
         if choice.tool_calls:
-            # Le LLM a décidé d'appeler un outil : on exécute, on observe, on reboucle.
             messages.append(choice.model_dump(exclude_none=True))
 
             for tool_call in choice.tool_calls:
@@ -46,10 +57,10 @@ def run_agent(user_message: str) -> dict:
                 tool_args = json.loads(tool_call.function.arguments or "{}")
                 tool_fn = TOOLS_REGISTRY.get(tool_name)
 
-                if tool_fn is None:
-                    result = {"error": f"Outil inconnu: {tool_name}"}
-                else:
-                    result = tool_fn(**tool_args)
+                try:
+                    result = tool_fn(**tool_args) if tool_fn else {"error": f"Outil inconnu: {tool_name}"}
+                except Exception as e:
+                    result = {"error": str(e)}
 
                 trace.append({"step": step, "tool_called": tool_name, "args": tool_args, "result": result})
 
@@ -57,21 +68,21 @@ def run_agent(user_message: str) -> dict:
                     {
                         "role": "tool",
                         "tool_call_id": tool_call.id,
-                        "content": json.dumps(result),
+                        "content": json.dumps(result, default=str),
                     }
                 )
             continue
 
-        # Pas d'appel d'outil -> réponse directe, on sort de la boucle.
         return {
             "final_response": choice.content,
             "steps_used": step + 1,
             "trace": trace,
+            "messages": messages[1:],
         }
 
-    # Nombre max d'étapes atteint sans conclure (cf. ton diagramme de workflow).
     return {
-        "final_response": "Nombre max d'étapes atteint sans conclure.",
+        "final_response": "Nombre max d'etapes atteint sans conclure.",
         "steps_used": MAX_STEPS,
         "trace": trace,
+        "messages": messages[1:],
     }

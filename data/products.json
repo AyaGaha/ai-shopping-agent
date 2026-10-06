@@ -1,0 +1,72 @@
+[
+  {
+    "id": "prod_001",
+    "nom": "T-shirt coton bio noir",
+    "description": "T-shirt unisexe en coton biologique, coupe classique, noir uni, idéal au quotidien.",
+    "prix": 19.90,
+    "variantes": ["S", "M", "L", "XL"]
+  },
+  {
+    "id": "prod_002",
+    "nom": "T-shirt coton bio blanc",
+    "description": "T-shirt unisexe en coton biologique, coupe classique, blanc uni, idéal au quotidien.",
+    "prix": 19.90,
+    "variantes": ["S", "M", "L", "XL"]
+  },
+  {
+    "id": "prod_003",
+    "nom": "Sweat à capuche gris chiné",
+    "description": "Sweat à capuche molletonné, intérieur doux, gris chiné, parfait pour les jours frais.",
+    "prix": 39.90,
+    "variantes": ["S", "M", "L", "XL"]
+  },
+  {
+    "id": "prod_004",
+    "nom": "Mug céramique blanc",
+    "description": "Mug en céramique blanche 330ml, passe au micro-ondes et au lave-vaisselle, idéal pour le café ou le thé.",
+    "prix": 9.90,
+    "variantes": []
+  },
+  {
+    "id": "prod_005",
+    "nom": "Gourde inox 500ml",
+    "description": "Gourde en acier inoxydable isotherme, garde les boissons froides 24h ou chaudes 12h, sans BPA.",
+    "prix": 24.90,
+    "variantes": ["noir", "bleu", "vert"]
+  },
+  {
+    "id": "prod_006",
+    "nom": "Casquette brodée",
+    "description": "Casquette ajustable en coton, broderie discrète sur le devant, taille unique.",
+    "prix": 17.90,
+    "variantes": ["noir", "beige"]
+  },
+  {
+    "id": "prod_007",
+    "nom": "Tote bag toile naturelle",
+    "description": "Sac en toile de coton épaisse, anses renforcées, format pratique pour les courses ou l'ordinateur portable.",
+    "prix": 12.90,
+    "variantes": []
+  },
+  {
+    "id": "prod_008",
+    "nom": "Carnet de notes ligné A5",
+    "description": "Carnet relié 120 pages lignées, couverture rigide, format A5, idéal pour prendre des notes au quotidien.",
+    "prix": 8.90,
+    "variantes": []
+  },
+  {
+    "id": "prod_009",
+    "nom": "Stylo bille métal",
+    "description": "Stylo à bille en métal brossé, encre noire, rechargeable, écriture fluide.",
+    "prix": 6.90,
+    "variantes": ["argent", "or"]
+  },
+  {
+    "id": "prod_010",
+    "nom": "Chaussettes en coton (lot de 3)",
+    "description": "Lot de trois paires de chaussettes en coton peigné, confortables, pour un usage quotidien.",
+    "prix": 11.90,
+    "variantes": ["36-39", "40-43", "44-47"]
+  }
+]
