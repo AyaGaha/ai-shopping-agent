@@ -40,7 +40,7 @@ def main():
     collection = client.create_collection(name=COLLECTION_NAME, embedding_function=embedding_fn)
 
     collection.add(
-        ids=[p["id"] for p in products],
+        ids=[str(p["id"]) for p in products],
         documents=[build_document(p) for p in products],
         metadatas=[
             {"nom": p["nom"], "prix": p["prix"], "variantes": ",".join(p["variantes"])}
