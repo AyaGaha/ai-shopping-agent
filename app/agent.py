@@ -16,15 +16,22 @@ from app.tools.search_product_tool import TOOL_SCHEMA as SEARCH_SCHEMA, TOOLS_RE
 MAX_STEPS = 6
 
 SYSTEM_PROMPT = (
-    "Tu es un agent d'assistance a l'achat. Tu disposes de 4 outils :\n"
-    "- search_product : pour trouver un produit dans le catalogue\n"
-    "- create_order : pour preparer une commande (statut 'pending', reversible)\n"
-    "- confirm_order : pour CONFIRMER une commande (irreversible)\n"
-    "- cancel_order : pour annuler une commande en attente\n\n"
-    "REGLE ABSOLUE : n'appelle JAMAIS confirm_order sans que le client ait "
-    "explicitement confirme dans un message precedent (ex: 'oui', 'confirme', "
-    "'vas-y'). Apres create_order, presente toujours le recapitulatif "
-    "(produit, quantite, prix total) et demande confirmation avant de continuer."
+    "Tu es un agent d'assistance a l'achat. Outils : search_product, create_order, "
+    "confirm_order, cancel_order.\n\n"
+    "DEROULEMENT D'UNE COMMANDE :\n"
+    "1. Cherche le produit avec search_product.\n"
+    "2. Presente un recapitulatif (produit, quantite, prix total) et demande une "
+    "confirmation explicite. N'appelle PAS create_order a ce stade.\n"
+    "3. Seulement apres un message du client qui confirme clairement (ex : 'oui', "
+    "'confirme', 'yes', 'vas-y'), appelle create_order puis, avec l'order_id obtenu, "
+    "confirm_order, puis annonce le numero de commande.\n"
+    "4. Si le client refuse ou hesite, n'appelle aucun outil de commande.\n\n"
+    "REGLE ABSOLUE : ne cree et ne confirme jamais une commande sans confirmation "
+    "explicite du client dans son dernier message. N'affirme sur un produit que ce qui "
+    "figure dans les resultats des outils ; si une information manque, dis que tu ne la connais pas.\n"
+    "DEVISE : les prix sont dans la devise indiquee par le champ 'devise' (ou 'currency') des "
+    "resultats d'outils. Si aucune devise n'est indiquee, n'ecris aucun symbole de devise "
+    "(ni euro, ni dollar)."
 )
 
 TOOLS = [SEARCH_SCHEMA] + ORDER_SCHEMAS
@@ -73,6 +80,9 @@ def run_agent(user_message: str, history: list[dict] | None = None) -> dict:
                 )
             continue
 
+        # La reponse finale DOIT faire partie de l'historique renvoye : sinon, au tour suivant,
+        # le LLM ne voit pas le recapitulatif qu'il vient de proposer ni la question de confirmation.
+        messages.append({"role": "assistant", "content": choice.content})
         return {
             "final_response": choice.content,
             "steps_used": step + 1,
@@ -80,8 +90,10 @@ def run_agent(user_message: str, history: list[dict] | None = None) -> dict:
             "messages": messages[1:],
         }
 
+    fallback = "Nombre max d'etapes atteint sans conclure."
+    messages.append({"role": "assistant", "content": fallback})
     return {
-        "final_response": "Nombre max d'etapes atteint sans conclure.",
+        "final_response": fallback,
         "steps_used": MAX_STEPS,
         "trace": trace,
         "messages": messages[1:],

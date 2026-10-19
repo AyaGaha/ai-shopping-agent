@@ -27,6 +27,7 @@ def create_order(product_id: int, quantity: int) -> dict:
     return {
         "order_id": order["id"],
         "total": order["total"],
+        "devise": order.get("currency", ""),
         "statut": "commande_creee_en_attente_de_confirmation",
     }
 
@@ -58,9 +59,9 @@ TOOL_SCHEMAS = [
         "function": {
             "name": "create_order",
             "description": (
-                "Cree une commande en statut PENDING (rien n'est facture, reversible). "
-                "A utiliser pour preparer une commande AVANT de demander confirmation au client. "
-                "Ne confirme jamais la commande toi-meme."
+                "Cree une commande en statut PENDING (rien n'est facture). "
+                "A appeler UNIQUEMENT apres que le client a explicitement confirme le recapitulatif, "
+                "et immediatement suivie de confirm_order."
             ),
             "parameters": {
                 "type": "object",
