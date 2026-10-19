@@ -63,13 +63,8 @@ def get(path: str, params: dict | None = None) -> dict | list:
     return _handle_response(response)
 
 
-@retry(
-    retry=retry_if_exception_type(WooCommerceTransientError),
-    stop=stop_after_attempt(3),
-    wait=wait_exponential(multiplier=1, min=1, max=4),
-    reraise=True,
-)
 def post(path: str, json_body: dict) -> dict:
+    """Send a non-retried POST; retrying order creation can create duplicate orders."""
     url = f"{_base_url()}/{path.lstrip('/')}"
     try:
         response = httpx.post(url, json=json_body, auth=_auth(), timeout=10.0)

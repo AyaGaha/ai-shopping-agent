@@ -40,6 +40,13 @@ class TestCreateOrder:
             create_order(product_id=999999, quantity=1)
         assert mock_post.call_count == 1
 
+    @patch("app.woocommerce_client.httpx.post")
+    def test_create_order_transient_error_is_not_retried(self, mock_post, *_):
+        mock_post.return_value = _fake_response(503)
+        with pytest.raises(WooCommerceTransientError):
+            create_order(product_id=7, quantity=1)
+        assert mock_post.call_count == 1
+
 
 @patch("app.woocommerce_client._auth", return_value=("ck_fake", "cs_fake"))
 @patch("app.woocommerce_client._base_url", return_value="http://fake-vm/wp-json/wc/v3")

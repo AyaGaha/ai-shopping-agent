@@ -5,3 +5,4 @@ __pycache__/
 .pytest_cache/
 chroma_data/
 .venv/
+data/conversations.sqlite3*

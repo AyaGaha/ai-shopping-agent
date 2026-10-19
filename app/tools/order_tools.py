@@ -57,6 +57,31 @@ TOOL_SCHEMAS = [
     {
         "type": "function",
         "function": {
+            "name": "propose_order",
+            "description": (
+                "Prépare une proposition de commande à partir d'un produit trouvé par search_product. "
+                "Cet outil ne crée aucune commande. Le serveur vérifie le prix, la devise et le stock, "
+                "puis présente lui-même le récapitulatif exact au client."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "product_id": {
+                        "type": "integer",
+                        "description": "Identifiant du produit obtenu via search_product.",
+                    },
+                    "quantity": {
+                        "type": "integer",
+                        "description": "Quantité souhaitée.",
+                    },
+                },
+                "required": ["product_id", "quantity"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "create_order",
             "description": (
                 "Cree une commande en statut PENDING (rien n'est facture). "

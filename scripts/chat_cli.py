@@ -1,5 +1,5 @@
 """
-Client console : parle a l'agent sans copier-coller de JSON (l'historique est gere pour toi).
+Client console : le serveur gere l'historique de conversation.
 
     python scripts/chat_cli.py                         # API locale  (http://localhost:8000)
     python scripts/chat_cli.py --url http://<IP>:8000  # API sur la VM
@@ -13,8 +13,12 @@ import json
 import httpx
 
 
-def send(client: httpx.Client, url: str, message: str, history: list[dict]) -> dict:
-    r = client.post(f"{url.rstrip('/')}/chat", json={"message": message, "history": history}, timeout=60.0)
+def send(client: httpx.Client, url: str, message: str, conversation_id: str | None) -> dict:
+    r = client.post(
+        f"{url.rstrip('/')}/chat",
+        json={"message": message, "conversation_id": conversation_id},
+        timeout=60.0,
+    )
     if r.status_code != 200:
         raise RuntimeError(f"HTTP {r.status_code} : {r.text[:500]}")
     return r.json()
@@ -26,7 +30,7 @@ def main():
     parser.add_argument("--verbose", action="store_true")
     args = parser.parse_args()
 
-    history: list[dict] = []
+    conversation_id: str | None = None
     print("Agent P059 — /reset pour recommencer, /quit pour sortir.\n")
     with httpx.Client() as client:
         while True:
@@ -40,11 +44,11 @@ def main():
             if message == "/quit":
                 break
             if message == "/reset":
-                history = []
+                conversation_id = None
                 print("(nouvelle conversation)\n")
                 continue
             try:
-                data = send(client, args.url, message, history)
+                data = send(client, args.url, message, conversation_id)
             except Exception as e:  # noqa: BLE001
                 print(f"[erreur] {e}\n")
                 continue
@@ -53,7 +57,7 @@ def main():
                 if args.verbose:
                     print(f"          -> {json.dumps(t['result'], ensure_ascii=False)}")
             print(f"agent > {data['final_response']}\n")
-            history = data["messages"]
+            conversation_id = data["conversation_id"]
 
 
 if __name__ == "__main__":
