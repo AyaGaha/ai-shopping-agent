@@ -1,6 +1,8 @@
 """Validation et persistance du contrat de conversation de /chat."""
-from uuid import UUID, uuid4
+import json
+import logging
 from unittest.mock import patch
+from uuid import UUID, uuid4
 
 import httpx
 import openai
@@ -106,3 +108,43 @@ def test_llm_error_becomes_clean_502():
         r = client.post("/chat", json={"message": "salut"})
     assert r.status_code == 502
     assert "Traceback" not in r.text
+
+
+def test_successful_request_logs_json_without_user_text(memory, caplog):
+    with (
+        patch(
+            "app.main.run_agent",
+            return_value={
+                "final_response": "ok",
+                "steps_used": 1,
+                "trace": [],
+                "messages": [{"role": "user", "content": "private message"}],
+            },
+        ),
+        caplog.at_level(logging.INFO, logger="p059"),
+    ):
+        response = client.post("/chat", json={"message": "private message"})
+
+    assert response.status_code == 200
+    event = json.loads(caplog.records[-1].message)
+    assert event["event"] == "chat.request"
+    assert event["outcome"] == "success"
+    assert "private message" not in caplog.text
+
+
+def test_app_warms_search_before_serving_requests(caplog):
+    with (
+        patch("app.main.warm_search") as warm_search,
+        caplog.at_level(logging.INFO, logger="p059"),
+        TestClient(main.app) as startup_client,
+    ):
+        response = startup_client.get("/health")
+
+    assert response.status_code == 200
+    warm_search.assert_called_once_with()
+    events = [
+        json.loads(record.message)
+        for record in caplog.records
+        if json.loads(record.message).get("event") == "search.model_warmup"
+    ]
+    assert [event["status"] for event in events] == ["loading", "ready"]

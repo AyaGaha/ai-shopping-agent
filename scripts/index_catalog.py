@@ -93,7 +93,11 @@ def main():
     except Exception:
         pass
 
-    collection = client.create_collection(name=COLLECTION_NAME, embedding_function=embedding_fn)
+    collection = client.create_collection(
+        name=COLLECTION_NAME,
+        embedding_function=embedding_fn,
+        configuration={"hnsw": {"space": "cosine"}},
+    )
 
     collection.add(
         ids=[str(p["id"]) for p in products],

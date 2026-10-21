@@ -3,10 +3,12 @@ Boucle d'agent (Thought -> Action -> Observation) avec 4 outils :
 search_product, create_order, confirm_order, cancel_order (WooCommerce).
 """
 import json
+from time import perf_counter
 
 from app.conversation_memory import ConversationMemory
-from app.guardrails import GuardrailFilter, contains_prompt_injection
+from app.guardrails import GuardrailError, GuardrailFilter, contains_prompt_injection
 from app.llm_client import get_client, get_model
+from app.observability import log_event
 from app.tools.order_tools import TOOL_SCHEMAS as ORDER_SCHEMAS, TOOLS_REGISTRY as ORDER_TOOLS
 from app.tools.search_product_tool import TOOL_SCHEMA as SEARCH_SCHEMA, TOOLS_REGISTRY as SEARCH_TOOLS
 
@@ -48,6 +50,13 @@ def run_agent(
     messages.append({"role": "user", "content": user_message})
 
     if contains_prompt_injection(user_message):
+        log_event(
+            "guardrail.decision",
+            conversation_id=conversation_id or "unassigned",
+            decision="blocked",
+            reason_code="prompt_injection_pattern",
+            tool=None,
+        )
         messages.append({"role": "assistant", "content": INJECTION_RESPONSE})
         return {
             "final_response": INJECTION_RESPONSE,
@@ -67,10 +76,29 @@ def run_agent(
     )
 
     for step in range(MAX_STEPS):
-        response = client.chat.completions.create(
-            model=model,
-            messages=messages,
-            tools=TOOLS,
+        llm_started_at = perf_counter()
+        try:
+            response = client.chat.completions.create(
+                model=model,
+                messages=messages,
+                tools=TOOLS,
+            )
+        except Exception as error:
+            log_event(
+                "llm.request",
+                conversation_id=conversation_id or "unassigned",
+                step=step,
+                outcome="error",
+                error_code=type(error).__name__,
+                duration_ms=round((perf_counter() - llm_started_at) * 1000, 2),
+            )
+            raise
+        log_event(
+            "llm.request",
+            conversation_id=conversation_id or "unassigned",
+            step=step,
+            outcome="success",
+            duration_ms=round((perf_counter() - llm_started_at) * 1000, 2),
         )
         choice = response.choices[0].message
 
@@ -79,6 +107,7 @@ def run_agent(
 
             for tool_call in choice.tool_calls:
                 tool_name = tool_call.function.name
+                safe_args = _safe_tool_parameters(tool_name, tool_call.function.arguments)
                 try:
                     tool_args = json.loads(tool_call.function.arguments or "{}")
                     if not isinstance(tool_args, dict):
@@ -87,6 +116,25 @@ def run_agent(
                     tool_args = {}
                     result = {"error": f"Paramètres d'outil invalides : {error}"}
                     trace.append({"step": step, "tool_called": tool_name, "args": tool_args, "result": result})
+                    log_event(
+                        "tool.execution",
+                        conversation_id=conversation_id or "unassigned",
+                        step=step,
+                        tool=tool_name,
+                        parameters=safe_args,
+                        decision="error",
+                        error_code="invalid_tool_arguments",
+                        duration_ms=0,
+                    )
+                    if tool_name in {"propose_order", "create_order", "confirm_order", "cancel_order"}:
+                        log_event(
+                            "guardrail.decision",
+                            conversation_id=conversation_id or "unassigned",
+                            step=step,
+                            tool=tool_name,
+                            decision="blocked",
+                            reason_code="invalid_tool_arguments",
+                        )
                     messages.append(
                         {
                             "role": "tool",
@@ -97,6 +145,7 @@ def run_agent(
                     continue
 
                 tool_fn = TOOLS_REGISTRY.get(tool_name)
+                tool_started_at = perf_counter()
 
                 try:
                     if tool_name in {"propose_order", "create_order", "confirm_order", "cancel_order"}:
@@ -105,8 +154,38 @@ def run_agent(
                         result = guardrails.handle(tool_name, tool_args)
                     else:
                         result = tool_fn(**tool_args) if tool_fn else {"error": f"Outil inconnu: {tool_name}"}
-                except Exception as e:
-                    result = {"error": str(e)}
+                except Exception as error:
+                    result = {"error": str(error)}
+                    decision = "blocked" if isinstance(error, GuardrailError) else "error"
+                    error_code = "guardrail_refused" if isinstance(error, GuardrailError) else type(error).__name__
+                else:
+                    if isinstance(result, dict) and "error" in result:
+                        decision = "error"
+                        error_code = "tool_returned_error"
+                    else:
+                        decision = "accepted"
+                        error_code = None
+
+                duration_ms = round((perf_counter() - tool_started_at) * 1000, 2)
+                log_event(
+                    "tool.execution",
+                    conversation_id=conversation_id or "unassigned",
+                    step=step,
+                    tool=tool_name,
+                    parameters=safe_args,
+                    decision=decision,
+                    error_code=error_code,
+                    duration_ms=duration_ms,
+                )
+                if tool_name in {"propose_order", "create_order", "confirm_order", "cancel_order"}:
+                    log_event(
+                        "guardrail.decision",
+                        conversation_id=conversation_id or "unassigned",
+                        step=step,
+                        tool=tool_name,
+                        decision=decision,
+                        reason_code=error_code,
+                    )
 
                 trace.append({"step": step, "tool_called": tool_name, "args": tool_args, "result": result})
 
@@ -150,4 +229,26 @@ def run_agent(
         "steps_used": MAX_STEPS,
         "trace": trace,
         "messages": messages[1:],
+    }
+
+
+def _safe_tool_parameters(tool_name: str, arguments: str) -> dict:
+    allowed_fields = {
+        "propose_order": {"product_id", "quantity"},
+        "create_order": {"product_id", "quantity"},
+        "confirm_order": {"order_id"},
+        "cancel_order": {"order_id"},
+    }.get(tool_name, set())
+    if not allowed_fields:
+        return {}
+    try:
+        parsed = json.loads(arguments or "{}")
+    except json.JSONDecodeError:
+        return {}
+    if not isinstance(parsed, dict):
+        return {}
+    return {
+        key: value
+        for key, value in parsed.items()
+        if key in allowed_fields and isinstance(value, int) and not isinstance(value, bool)
     }

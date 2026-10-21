@@ -123,6 +123,17 @@ def _get_collection():
     return _collection
 
 
+def warm_search() -> None:
+    """Load the embedding model and run one read-only query before serving traffic."""
+    collection = _get_collection()
+    if collection.count() > 0:
+        collection.query(
+            query_texts=["warmup"],
+            n_results=1,
+            include=["distances"],
+        )
+
+
 def search_product(query: str, k: int = 3) -> dict:
     """Recherche des produits pertinents, sans imposer trois résultats."""
     collection = _get_collection()

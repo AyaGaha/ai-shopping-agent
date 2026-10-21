@@ -68,6 +68,49 @@ concurrents. Le POST de création n'est pas réessayé automatiquement : en cas
 d'erreur réseau dont l'issue est incertaine, l'état reste bloqué pour éviter un
 doublon et nécessite une vérification manuelle dans WooCommerce.
 
+## Logs et évaluation
+
+Les logs applicatifs sont des lignes JSON sur stdout. Ils distinguent les
+requêtes LLM, les exécutions d'outils et les décisions de garde-fou, avec
+conversation, étape, décision/code d'erreur et durée. Le texte utilisateur,
+les requêtes de recherche, les descriptions de produits et les secrets ne sont
+pas consignés dans ces événements. Sur la VM, ils sont consultables dans les
+logs du processus/service qui exécute Uvicorn.
+
+Au démarrage, l'application précharge l'embedder et exécute une requête de
+recherche en lecture seule avant d'accepter du trafic. Sur une VM froide, ce
+chargement peut prendre plusieurs minutes; attendre l'événement JSON
+`search.model_warmup` avec `"status":"ready"` avant d'envoyer le premier chat.
+L'application ne démarre pas si le catalogue ou le modèle de recherche ne peut
+pas être initialisé.
+
+Le jeu versionné de référence est `data/evaluation_cases.json` (recherche
+FR/EN, résultats attendus et cas sans résultat, confirmations et injections).
+Pour exécuter seulement l'évaluation déterministe des garde-fous, sans réseau :
+
+```bash
+python -m scripts.evaluate --only guardrails
+```
+
+Pour évaluer la recherche sur l'index ChromaDB courant et comparer les seuils
+de distance cosine :
+
+```bash
+python -m scripts.evaluate
+```
+
+Le rapport JSON comprend Hit@1, Hit@3, MRR, taux de faux positifs sur les
+requêtes sans résultat, latences p50/p95, taux d'erreur, taux de blocage des
+attaques et taux de faux blocage. Le modèle d'embedding peut devoir être chargé
+au premier lancement : le rapport sépare maintenant la latence du premier
+résultat (chargement à froid) de la latence des requêtes suivantes (modèle
+chaud). Pour tester des seuils particuliers, répéter
+`--threshold`, par exemple `--threshold 0.6 --threshold 0.7`.
+`scripts/index_catalog.py` configure explicitement la distance ChromaDB en
+cosine lors de la création d'un index. L'évaluation hors ligne n'appelle pas le
+LLM et ne mesure donc pas le choix d'outil du modèle; ce score nécessite une
+évaluation séparée avec un modèle et des outils mockés.
+
 ## Tester
 
 ```bash
