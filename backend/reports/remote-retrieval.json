@@ -1,0 +1,487 @@
+{
+  "dataset_version": 2,
+  "base_url": "http://20.42.113.19:8000/chat",
+  "method": "24 user-level HTTP /chat requests; each prompt explicitly requested catalogue search; metrics over first search_product result; returned products are already threshold-filtered by deployed MIN_DISTANCE=0.70",
+  "summary": {
+    "query_count": 24,
+    "http_200_count": 24,
+    "search_called_count": 21,
+    "positive_queries": 20,
+    "negative_queries": 4,
+    "hit_at_1": 0.65,
+    "hit_at_3": 0.65,
+    "mrr": 0.65,
+    "false_positive_count": 2,
+    "false_positive_rate": 0.5,
+    "latency_ms": {
+      "mean": 3285.22,
+      "p50_nearest_rank": 3053.31,
+      "p95_nearest_rank": 6634.0
+    },
+    "unexpected_order_tool_calls": 0
+  },
+  "cases": [
+    {
+      "index": 1,
+      "query": "des chaussettes confortables en coton pour tous les jours",
+      "relevant_ids": [
+        "37"
+      ],
+      "http_status": 200,
+      "duration_ms": 1272.84,
+      "search_called": true,
+      "returned_ids": [
+        "37",
+        "30",
+        "16"
+      ],
+      "distances": [
+        0.2386,
+        0.5128,
+        0.5147
+      ],
+      "rank_of_relevant": 1,
+      "steps_used": 2,
+      "order_tools": []
+    },
+    {
+      "index": 2,
+      "query": "cotton socks for everyday wear",
+      "relevant_ids": [
+        "37"
+      ],
+      "http_status": 200,
+      "duration_ms": 1966.81,
+      "search_called": true,
+      "returned_ids": [],
+      "distances": [],
+      "rank_of_relevant": null,
+      "steps_used": 2,
+      "order_tools": []
+    },
+    {
+      "index": 3,
+      "query": "stylo en métal rechargeable pour écrire",
+      "relevant_ids": [
+        "34"
+      ],
+      "http_status": 200,
+      "duration_ms": 1191.35,
+      "search_called": true,
+      "returned_ids": [
+        "34",
+        "23",
+        "21"
+      ],
+      "distances": [
+        0.2734,
+        0.6504,
+        0.6578
+      ],
+      "rank_of_relevant": 1,
+      "steps_used": 2,
+      "order_tools": []
+    },
+    {
+      "index": 4,
+      "query": "a refillable metal ballpoint pen",
+      "relevant_ids": [
+        "34"
+      ],
+      "http_status": 200,
+      "duration_ms": 865.37,
+      "search_called": true,
+      "returned_ids": [],
+      "distances": [],
+      "rank_of_relevant": null,
+      "steps_used": 2,
+      "order_tools": []
+    },
+    {
+      "index": 5,
+      "query": "carnet A5 avec des pages lignées pour prendre des notes",
+      "relevant_ids": [
+        "32"
+      ],
+      "http_status": 200,
+      "duration_ms": 1206.17,
+      "search_called": true,
+      "returned_ids": [
+        "32"
+      ],
+      "distances": [
+        0.2092
+      ],
+      "rank_of_relevant": 1,
+      "steps_used": 2,
+      "order_tools": []
+    },
+    {
+      "index": 6,
+      "query": "lined notebook for writing notes",
+      "relevant_ids": [
+        "32"
+      ],
+      "http_status": 200,
+      "duration_ms": 3880.94,
+      "search_called": true,
+      "returned_ids": [
+        "32"
+      ],
+      "distances": [
+        0.6688
+      ],
+      "rank_of_relevant": 1,
+      "steps_used": 2,
+      "order_tools": []
+    },
+    {
+      "index": 7,
+      "query": "sac réutilisable en toile pour faire les courses",
+      "relevant_ids": [
+        "30"
+      ],
+      "http_status": 200,
+      "duration_ms": 3187.69,
+      "search_called": false,
+      "returned_ids": [],
+      "distances": [],
+      "rank_of_relevant": null,
+      "steps_used": 0,
+      "order_tools": []
+    },
+    {
+      "index": 8,
+      "query": "canvas tote bag for shopping",
+      "relevant_ids": [
+        "30"
+      ],
+      "http_status": 200,
+      "duration_ms": 5454.77,
+      "search_called": true,
+      "returned_ids": [
+        "30"
+      ],
+      "distances": [
+        0.4966
+      ],
+      "rank_of_relevant": 1,
+      "steps_used": 2,
+      "order_tools": []
+    },
+    {
+      "index": 9,
+      "query": "casquette avec broderie",
+      "relevant_ids": [
+        "27"
+      ],
+      "http_status": 200,
+      "duration_ms": 2127.23,
+      "search_called": true,
+      "returned_ids": [
+        "27",
+        "16",
+        "37"
+      ],
+      "distances": [
+        0.2304,
+        0.6532,
+        0.6615
+      ],
+      "rank_of_relevant": 1,
+      "steps_used": 2,
+      "order_tools": []
+    },
+    {
+      "index": 10,
+      "query": "embroidered baseball cap",
+      "relevant_ids": [
+        "27"
+      ],
+      "http_status": 200,
+      "duration_ms": 8505.21,
+      "search_called": true,
+      "returned_ids": [],
+      "distances": [],
+      "rank_of_relevant": null,
+      "steps_used": 2,
+      "order_tools": []
+    },
+    {
+      "index": 11,
+      "query": "gourde isotherme en inox pour boissons chaudes",
+      "relevant_ids": [
+        "23"
+      ],
+      "http_status": 200,
+      "duration_ms": 1233.87,
+      "search_called": true,
+      "returned_ids": [
+        "23",
+        "30",
+        "37"
+      ],
+      "distances": [
+        0.2807,
+        0.5392,
+        0.5639
+      ],
+      "rank_of_relevant": 1,
+      "steps_used": 2,
+      "order_tools": []
+    },
+    {
+      "index": 12,
+      "query": "stainless steel thermos bottle",
+      "relevant_ids": [
+        "23"
+      ],
+      "http_status": 200,
+      "duration_ms": 3053.31,
+      "search_called": true,
+      "returned_ids": [
+        "34"
+      ],
+      "distances": [
+        0.6943
+      ],
+      "rank_of_relevant": null,
+      "steps_used": 2,
+      "order_tools": []
+    },
+    {
+      "index": 13,
+      "query": "tasse en céramique pour le café",
+      "relevant_ids": [
+        "21"
+      ],
+      "http_status": 200,
+      "duration_ms": 3583.17,
+      "search_called": true,
+      "returned_ids": [
+        "21",
+        "17",
+        "16"
+      ],
+      "distances": [
+        0.3394,
+        0.5491,
+        0.5838
+      ],
+      "rank_of_relevant": 1,
+      "steps_used": 1,
+      "order_tools": []
+    },
+    {
+      "index": 14,
+      "query": "white ceramic coffee mug",
+      "relevant_ids": [
+        "21"
+      ],
+      "http_status": 200,
+      "duration_ms": 6634.0,
+      "search_called": true,
+      "returned_ids": [
+        "21"
+      ],
+      "distances": [
+        0.6163
+      ],
+      "rank_of_relevant": 1,
+      "steps_used": 1,
+      "order_tools": []
+    },
+    {
+      "index": 15,
+      "query": "sweat à capuche chaud pour les journées fraîches",
+      "relevant_ids": [
+        "17"
+      ],
+      "http_status": 200,
+      "duration_ms": 3252.05,
+      "search_called": false,
+      "returned_ids": [],
+      "distances": [],
+      "rank_of_relevant": null,
+      "steps_used": 0,
+      "order_tools": []
+    },
+    {
+      "index": 16,
+      "query": "warm grey hooded sweatshirt",
+      "relevant_ids": [
+        "17"
+      ],
+      "http_status": 200,
+      "duration_ms": 2273.68,
+      "search_called": true,
+      "returned_ids": [
+        "16"
+      ],
+      "distances": [
+        0.6783
+      ],
+      "rank_of_relevant": null,
+      "steps_used": 2,
+      "order_tools": []
+    },
+    {
+      "index": 17,
+      "query": "t-shirt noir en coton biologique",
+      "relevant_ids": [
+        "16"
+      ],
+      "http_status": 200,
+      "duration_ms": 5562.09,
+      "search_called": true,
+      "returned_ids": [
+        "16",
+        "37",
+        "17"
+      ],
+      "distances": [
+        0.1109,
+        0.496,
+        0.5828
+      ],
+      "rank_of_relevant": 1,
+      "steps_used": 2,
+      "order_tools": []
+    },
+    {
+      "index": 18,
+      "query": "black organic cotton tee",
+      "relevant_ids": [
+        "16"
+      ],
+      "http_status": 200,
+      "duration_ms": 3003.2,
+      "search_called": true,
+      "returned_ids": [
+        "16",
+        "34"
+      ],
+      "distances": [
+        0.5952,
+        0.6957
+      ],
+      "rank_of_relevant": 1,
+      "steps_used": 2,
+      "order_tools": []
+    },
+    {
+      "index": 19,
+      "query": "un mug pour boire du café chaud",
+      "relevant_ids": [
+        "21"
+      ],
+      "http_status": 200,
+      "duration_ms": 4683.23,
+      "search_called": true,
+      "returned_ids": [
+        "21",
+        "17",
+        "37"
+      ],
+      "distances": [
+        0.3994,
+        0.5434,
+        0.6404
+      ],
+      "rank_of_relevant": 1,
+      "steps_used": 1,
+      "order_tools": []
+    },
+    {
+      "index": 20,
+      "query": "un sac en tissu pour transporter mon ordinateur",
+      "relevant_ids": [
+        "30"
+      ],
+      "http_status": 200,
+      "duration_ms": 806.56,
+      "search_called": true,
+      "returned_ids": [
+        "30",
+        "21",
+        "23"
+      ],
+      "distances": [
+        0.471,
+        0.5937,
+        0.628
+      ],
+      "rank_of_relevant": 1,
+      "steps_used": 2,
+      "order_tools": []
+    },
+    {
+      "index": 21,
+      "query": "moteur de bateau avec hélice de rechange",
+      "relevant_ids": [],
+      "http_status": 200,
+      "duration_ms": 5169.37,
+      "search_called": true,
+      "returned_ids": [
+        "30",
+        "34",
+        "21"
+      ],
+      "distances": [
+        0.5776,
+        0.5845,
+        0.6212
+      ],
+      "rank_of_relevant": null,
+      "steps_used": 1,
+      "order_tools": []
+    },
+    {
+      "index": 22,
+      "query": "abonnement à un service de streaming musical",
+      "relevant_ids": [],
+      "http_status": 200,
+      "duration_ms": 2082.35,
+      "search_called": true,
+      "returned_ids": [],
+      "distances": [],
+      "rank_of_relevant": null,
+      "steps_used": 2,
+      "order_tools": []
+    },
+    {
+      "index": 23,
+      "query": "pièces détachées pour une tondeuse à gazon",
+      "relevant_ids": [],
+      "http_status": 200,
+      "duration_ms": 4663.34,
+      "search_called": true,
+      "returned_ids": [
+        "37",
+        "17",
+        "30"
+      ],
+      "distances": [
+        0.5518,
+        0.6214,
+        0.6341
+      ],
+      "rank_of_relevant": null,
+      "steps_used": 2,
+      "order_tools": []
+    },
+    {
+      "index": 24,
+      "query": "quantum physics textbook in hardcover",
+      "relevant_ids": [],
+      "http_status": 200,
+      "duration_ms": 3186.7,
+      "search_called": false,
+      "returned_ids": [],
+      "distances": [],
+      "rank_of_relevant": null,
+      "steps_used": 0,
+      "order_tools": []
+    }
+  ]
+}

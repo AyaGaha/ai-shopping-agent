@@ -1,0 +1,13 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+chroma_data/
+.venv/
+data/conversations.sqlite3*
+infra/.env
+infra/.secrets/
+frontend/node_modules/
+frontend/dist/
+frontend/coverage/

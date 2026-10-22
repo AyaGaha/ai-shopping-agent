@@ -1,0 +1,42 @@
+# Azure Ubuntu cloud-init template for a fresh demo VM.
+# Azure public IP is discovered from Instance Metadata. Open VM NSG ports 80 and 8000.
+# After provisioning, set GROQ_API_KEY in the project .env, then enable the service.
+#cloud-config
+package_update: true
+packages:
+  - docker.io
+  - docker-compose-v2
+  - git
+  - curl
+  - python3
+  - python3-venv
+  - python3-pip
+
+write_files:
+  - path: /etc/systemd/system/ai-shopping-agent.service
+    owner: root:root
+    permissions: '0644'
+    content: |
+      [Unit]
+      Description=AI Shopping Agent FastAPI service
+      After=network-online.target docker.service
+      Wants=network-online.target
+
+      [Service]
+      Type=simple
+      User=azureuser
+      WorkingDirectory=/home/azureuser/ai-shopping-agent
+      EnvironmentFile=/home/azureuser/ai-shopping-agent/.env
+      ExecStart=/home/azureuser/ai-shopping-agent/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
+      Restart=on-failure
+      RestartSec=5
+
+      [Install]
+      WantedBy=multi-user.target
+
+runcmd:
+  - [bash, -lc, "usermod -aG docker azureuser"]
+  - [bash, -lc, "mkdir -p /home/azureuser && if [ ! -d /home/azureuser/ai-shopping-agent/.git ]; then git clone --branch master https://github.com/AyaGaha/ai-shopping-agent.git /home/azureuser/ai-shopping-agent; fi"]
+  - [bash, -lc, "chown -R azureuser:azureuser /home/azureuser/ai-shopping-agent"]
+  - [bash, -lc, "PUBLIC_IP=$(curl -fsS -H Metadata:true --noproxy '*' 'http://169.254.169.254/metadata/instance/network/interface/0/ipv4/ipAddress/0/publicIpAddress?api-version=2025-04-07&format=text') && runuser -u azureuser -- env SITE_URL=http://${PUBLIC_IP} bash -lc 'cd /home/azureuser/ai-shopping-agent && infra/provision.sh'"]
+  - [bash, -lc, "systemctl daemon-reload"]

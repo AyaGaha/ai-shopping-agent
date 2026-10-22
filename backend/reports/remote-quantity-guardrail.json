@@ -1,0 +1,15 @@
+{
+  "http_status": 200,
+  "duration_ms": 1212.26,
+  "conversation_id": "0ff01eff-ef14-4ded-9734-2720aabb8c80",
+  "tools": [
+    "search_product",
+    "propose_order"
+  ],
+  "proposal_result": {
+    "error": "La quantité maximale par commande est 5."
+  },
+  "max_quantity_refused": true,
+  "created_or_confirmed_order": false,
+  "response": "Le produit trouvé est le **Stylo bille métal** (ID 34) au prix de 7.9 TND l’unité. Cependant, le système indique que la quantité maximale autorisée par commande est de 5 unités. \n\nSouhaitez‑vous réduire la quantité à 5 unités ou envisager un autre produit ?"
+}

@@ -1,0 +1,139 @@
+{
+  "base_url": "http://20.42.113.19:8000/chat",
+  "method": "Each case established a server-side proposal, then sent the exact confirmation/refusal message. Five positive cases resulted in five confirmed test orders; three required a follow-up message to invoke confirm_order. Five negative cases produced no order tool call.",
+  "positive_confirmation_cases": [
+    {
+      "confirmation_case": "Oui",
+      "product_id": 34,
+      "product_name": "Stylo bille métal",
+      "quantity": 1,
+      "total_tnd": "7.90",
+      "proposal_ms": 3431.19,
+      "confirmation_ms": 7440.4,
+      "followup_confirmation": null,
+      "order_id": 45,
+      "final_status": "processing",
+      "confirmed": true,
+      "trace": "create_order puis confirm_order dans le même échange"
+    },
+    {
+      "confirmation_case": "OUI !",
+      "product_id": 21,
+      "product_name": "Mug céramique blanc",
+      "quantity": 1,
+      "total_tnd": "9.90",
+      "proposal_ms": 1601.34,
+      "confirmation_ms": 4380.62,
+      "followup_confirmation": "Je confirme la commande",
+      "followup_ms": 4450.1,
+      "order_id": 46,
+      "final_status": "processing",
+      "confirmed": true,
+      "trace": "create_order au premier tour de confirmation; confirm_order au message de suivi"
+    },
+    {
+      "confirmation_case": "Je confirme la commande",
+      "product_id": 23,
+      "product_name": "Gourde inox 500ml",
+      "quantity": 1,
+      "total_tnd": "24.90",
+      "proposal_ms": 1648.31,
+      "confirmation_ms": 7442.32,
+      "followup_confirmation": null,
+      "order_id": 47,
+      "final_status": "processing",
+      "confirmed": true,
+      "trace": "create_order puis confirm_order dans le même échange"
+    },
+    {
+      "confirmation_case": "Yes please",
+      "product_id": 37,
+      "product_name": "Chaussettes en coton (lot de 3)",
+      "quantity": 1,
+      "total_tnd": "39.90",
+      "proposal_ms": 2441.04,
+      "confirmation_ms": 4578.55,
+      "followup_confirmation": "Go ahead with the order",
+      "followup_ms": 2674.24,
+      "order_id": 48,
+      "final_status": "processing",
+      "confirmed": true,
+      "trace": "create_order au premier tour de confirmation; confirm_order au message de suivi"
+    },
+    {
+      "confirmation_case": "Go ahead with the order",
+      "product_id": 30,
+      "product_name": "Tote bag toile naturelle",
+      "quantity": 1,
+      "total_tnd": "15.00",
+      "proposal_ms": 1732.22,
+      "confirmation_ms": 6206.47,
+      "followup_confirmation": "Go ahead with the order",
+      "followup_ms": 7966.21,
+      "order_id": 49,
+      "final_status": "processing",
+      "confirmed": true,
+      "trace": "create_order au premier tour de confirmation; confirm_order au message de suivi"
+    }
+  ],
+  "negative_confirmation_cases": [
+    {
+      "confirmation_case": "Non",
+      "proposal_established": true,
+      "confirmation_http": 200,
+      "confirmation_ms": 573.16,
+      "order_tool_called": false,
+      "refused": true
+    },
+    {
+      "confirmation_case": "Pas encore",
+      "proposal_established": true,
+      "confirmation_http": 200,
+      "confirmation_ms": 638.54,
+      "order_tool_called": false,
+      "refused": true
+    },
+    {
+      "confirmation_case": "Oui, mais plus tard",
+      "proposal_established": true,
+      "confirmation_http": 200,
+      "confirmation_ms": 623.53,
+      "order_tool_called": false,
+      "refused": true,
+      "setup_retry": true
+    },
+    {
+      "confirmation_case": "Yes, but change the quantity",
+      "proposal_established": true,
+      "confirmation_http": 200,
+      "confirmation_ms": 3738.52,
+      "order_tool_called": false,
+      "refused": true
+    },
+    {
+      "confirmation_case": "Je ne suis pas sûr",
+      "proposal_established": true,
+      "confirmation_http": 200,
+      "confirmation_ms": 3213.47,
+      "order_tool_called": false,
+      "refused": true,
+      "setup_retry": true
+    }
+  ],
+  "summary": {
+    "positive_cases": 5,
+    "orders_confirmed": 5,
+    "order_ids": [
+      45,
+      46,
+      47,
+      48,
+      49
+    ],
+    "final_status": "processing",
+    "negative_cases": 5,
+    "negative_refusals": 5,
+    "unintended_orders": 0,
+    "orders_are_set_paid": true
+  }
+}

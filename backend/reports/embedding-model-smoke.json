@@ -1,0 +1,67 @@
+{
+  "dataset": "/home/azureuser/ai-shopping-agent/data/evaluation_cases.json",
+  "dataset_version": 2,
+  "catalog": "/home/azureuser/ai-shopping-agent/data/products.json",
+  "distance_metric": "cosine",
+  "threshold_semantics": "Retourner les produits dont la distance est <= au seuil.",
+  "production_index_modified": false,
+  "torch_threads": 1,
+  "retrieval_query_count": 3,
+  "models": [
+    {
+      "embedding_model": "paraphrase-multilingual-MiniLM-L12-v2",
+      "catalog_product_count": 9,
+      "index_and_model_init_ms": 341237.84,
+      "query_batch_latency_ms": {
+        "embedding_all_queries": 540496.66,
+        "chroma_search_all_queries": 2238.65,
+        "total_all_queries": 542735.31,
+        "amortized_per_query": 180911.77
+      },
+      "query_latency_note": "Les 3 requêtes sont encodées et cherchées en lots pour réduire le coût d'inférence sur CPU. index_and_model_init_ms inclut l'initialisation du modèle et l'indexation du catalogue.",
+      "results": {
+        "query_count": 3,
+        "error_count": 0,
+        "error_rate": 0.0,
+        "thresholds": [
+          {
+            "threshold": 0.45,
+            "positive_queries": 3,
+            "negative_queries": 0,
+            "hit_at_1": 1.0,
+            "hit_at_3": 1.0,
+            "mrr": 1.0,
+            "false_positive_rate": null
+          },
+          {
+            "threshold": 0.5,
+            "positive_queries": 3,
+            "negative_queries": 0,
+            "hit_at_1": 1.0,
+            "hit_at_3": 1.0,
+            "mrr": 1.0,
+            "false_positive_rate": null
+          },
+          {
+            "threshold": 0.55,
+            "positive_queries": 3,
+            "negative_queries": 0,
+            "hit_at_1": 1.0,
+            "hit_at_3": 1.0,
+            "mrr": 1.0,
+            "false_positive_rate": null
+          },
+          {
+            "threshold": 0.6,
+            "positive_queries": 3,
+            "negative_queries": 0,
+            "hit_at_1": 1.0,
+            "hit_at_3": 1.0,
+            "mrr": 1.0,
+            "false_positive_rate": null
+          }
+        ]
+      }
+    }
+  ]
+}

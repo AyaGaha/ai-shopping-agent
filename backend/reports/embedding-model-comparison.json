@@ -1,0 +1,156 @@
+{
+  "dataset": "/home/azureuser/ai-shopping-agent/data/evaluation_cases.json",
+  "dataset_version": 2,
+  "catalog": "/home/azureuser/ai-shopping-agent/data/products.json",
+  "distance_metric": "cosine",
+  "threshold_semantics": "Retourner les produits dont la distance est <= au seuil.",
+  "production_index_modified": false,
+  "models": [
+    {
+      "embedding_model": "all-MiniLM-L6-v2",
+      "catalog_product_count": 9,
+      "index_and_model_init_ms": 621688.04,
+      "query_batch_latency_ms": {
+        "embedding_all_queries": 83.21,
+        "chroma_search_all_queries": 3.36,
+        "total_all_queries": 86.57,
+        "amortized_per_query": 3.61
+      },
+      "query_latency_note": "Les 24 requêtes sont encodées et cherchées en lots pour réduire le coût d'inférence sur CPU. index_and_model_init_ms inclut l'initialisation du modèle et l'indexation du catalogue.",
+      "results": {
+        "query_count": 24,
+        "error_count": 0,
+        "error_rate": 0.0,
+        "thresholds": [
+          {
+            "threshold": 0.45,
+            "positive_queries": 20,
+            "negative_queries": 4,
+            "hit_at_1": 0.5,
+            "hit_at_3": 0.5,
+            "mrr": 0.5,
+            "false_positive_rate": 0.0
+          },
+          {
+            "threshold": 0.5,
+            "positive_queries": 20,
+            "negative_queries": 4,
+            "hit_at_1": 0.6,
+            "hit_at_3": 0.6,
+            "mrr": 0.6,
+            "false_positive_rate": 0.0
+          },
+          {
+            "threshold": 0.55,
+            "positive_queries": 20,
+            "negative_queries": 4,
+            "hit_at_1": 0.6,
+            "hit_at_3": 0.6,
+            "mrr": 0.6,
+            "false_positive_rate": 0.0
+          },
+          {
+            "threshold": 0.6,
+            "positive_queries": 20,
+            "negative_queries": 4,
+            "hit_at_1": 0.65,
+            "hit_at_3": 0.65,
+            "mrr": 0.65,
+            "false_positive_rate": 0.5
+          },
+          {
+            "threshold": 0.65,
+            "positive_queries": 20,
+            "negative_queries": 4,
+            "hit_at_1": 0.7,
+            "hit_at_3": 0.7,
+            "mrr": 0.7,
+            "false_positive_rate": 0.5
+          },
+          {
+            "threshold": 0.7,
+            "positive_queries": 20,
+            "negative_queries": 4,
+            "hit_at_1": 0.75,
+            "hit_at_3": 0.75,
+            "mrr": 0.75,
+            "false_positive_rate": 0.5
+          }
+        ]
+      }
+    },
+    {
+      "embedding_model": "paraphrase-multilingual-MiniLM-L12-v2",
+      "catalog_product_count": 9,
+      "index_and_model_init_ms": 78549.67,
+      "query_batch_latency_ms": {
+        "embedding_all_queries": 342469.85,
+        "chroma_search_all_queries": 2444.63,
+        "total_all_queries": 344914.48,
+        "amortized_per_query": 14371.44
+      },
+      "query_latency_note": "Les 24 requêtes sont encodées et cherchées en lots pour réduire le coût d'inférence sur CPU. index_and_model_init_ms inclut l'initialisation du modèle et l'indexation du catalogue.",
+      "results": {
+        "query_count": 24,
+        "error_count": 0,
+        "error_rate": 0.0,
+        "thresholds": [
+          {
+            "threshold": 0.45,
+            "positive_queries": 20,
+            "negative_queries": 4,
+            "hit_at_1": 0.7,
+            "hit_at_3": 0.7,
+            "mrr": 0.7,
+            "false_positive_rate": 0.25
+          },
+          {
+            "threshold": 0.5,
+            "positive_queries": 20,
+            "negative_queries": 4,
+            "hit_at_1": 0.85,
+            "hit_at_3": 0.85,
+            "mrr": 0.85,
+            "false_positive_rate": 0.25
+          },
+          {
+            "threshold": 0.55,
+            "positive_queries": 20,
+            "negative_queries": 4,
+            "hit_at_1": 0.9,
+            "hit_at_3": 0.9,
+            "mrr": 0.9,
+            "false_positive_rate": 0.25
+          },
+          {
+            "threshold": 0.6,
+            "positive_queries": 20,
+            "negative_queries": 4,
+            "hit_at_1": 1.0,
+            "hit_at_3": 1.0,
+            "mrr": 1.0,
+            "false_positive_rate": 0.25
+          },
+          {
+            "threshold": 0.65,
+            "positive_queries": 20,
+            "negative_queries": 4,
+            "hit_at_1": 1.0,
+            "hit_at_3": 1.0,
+            "mrr": 1.0,
+            "false_positive_rate": 0.25
+          },
+          {
+            "threshold": 0.7,
+            "positive_queries": 20,
+            "negative_queries": 4,
+            "hit_at_1": 1.0,
+            "hit_at_3": 1.0,
+            "mrr": 1.0,
+            "false_positive_rate": 0.25
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,124 @@
+{
+  "suite": "remote_tool_selection",
+  "base_url": "http://20.42.113.19:8000/chat",
+  "case_count": 8,
+  "http_200_count": 8,
+  "accuracy": 0.875,
+  "error_count": 0,
+  "latency_ms": {
+    "mean": 1940.87,
+    "p50_nearest_rank": 1233.92,
+    "p95_nearest_rank": 3857.91
+  },
+  "cases": [
+    {
+      "id": "greeting",
+      "expected": null,
+      "actual": null,
+      "http_status": 200,
+      "duration_ms": 525.34,
+      "steps_used": 1,
+      "tool_trace": []
+    },
+    {
+      "id": "shipping_question",
+      "expected": null,
+      "actual": null,
+      "http_status": 200,
+      "duration_ms": 740.37,
+      "steps_used": 1,
+      "tool_trace": []
+    },
+    {
+      "id": "product_search_fr",
+      "expected": "search_product",
+      "actual": "search_product",
+      "http_status": 200,
+      "duration_ms": 3857.91,
+      "steps_used": 2,
+      "tool_trace": [
+        "search_product"
+      ]
+    },
+    {
+      "id": "product_search_en",
+      "expected": "search_product",
+      "actual": "search_product",
+      "http_status": 200,
+      "duration_ms": 1233.92,
+      "steps_used": 2,
+      "tool_trace": [
+        "search_product"
+      ]
+    },
+    {
+      "id": "product_advice_context",
+      "expected": "search_product",
+      "http_status": 200,
+      "duration_ms": 1042.25,
+      "steps_used": 1,
+      "tool_trace": [],
+      "actual_without_server_history": null,
+      "history_setup_required": true,
+      "actual_with_server_history": "search_product"
+    },
+    {
+      "id": "buy_intent",
+      "expected": "search_product",
+      "actual": "search_product",
+      "http_status": 200,
+      "duration_ms": 2863.09,
+      "steps_used": 2,
+      "tool_trace": [
+        "search_product",
+        "propose_order"
+      ]
+    },
+    {
+      "id": "general_product_fact",
+      "expected": null,
+      "actual": null,
+      "http_status": 200,
+      "duration_ms": 3517.87,
+      "steps_used": 1,
+      "tool_trace": []
+    },
+    {
+      "id": "catalog_question",
+      "expected": "search_product",
+      "actual": "search_product",
+      "http_status": 200,
+      "duration_ms": 1746.22,
+      "steps_used": 2,
+      "tool_trace": [
+        "search_product"
+      ]
+    }
+  ],
+  "order_tool_called": false,
+  "context_replay": {
+    "case_id": "product_advice_context",
+    "setup_http": 200,
+    "setup_duration_ms": 907.98,
+    "setup_tool": "search_product",
+    "followup_http": 200,
+    "followup_duration_ms": 1340.92,
+    "expected_tool": "search_product",
+    "actual_tool": "search_product",
+    "followup_tools": [
+      "search_product"
+    ],
+    "method": "Création préalable d’une vraie conversation, puis message de conseil avec conversation_id; l’API n’accepte pas un historique fourni par le client."
+  },
+  "summary_with_context_replay": {
+    "case_count": 8,
+    "correct": 8,
+    "accuracy": 1.0,
+    "latency_ms": {
+      "mean": 1978.2,
+      "p50_nearest_rank": 1340.92,
+      "p95_nearest_rank": 3857.91
+    },
+    "note": "Recalcule le cas contextuel avec l’historique réel de la VM; le résumé initial sans contexte reste disponible et vaut 7/8."
+  }
+}
