@@ -113,6 +113,25 @@ class ConversationMemory:
                 connection.rollback()
                 raise
 
+    def discard_unconfirmed_proposal(self, conversation_id: str) -> bool:
+        """Clear a quote when the customer switches back to product advice.
+
+        A created WooCommerce order is never cleared here; only a proposal that
+        has not caused a remote side effect can be discarded.
+        """
+        discarded = False
+
+        def discard(state: dict) -> dict:
+            nonlocal discarded
+            pending = state.get("pending_order")
+            if pending is not None and pending.get("status") == "proposed":
+                discarded = True
+                return {**state, "pending_order": None}
+            return state
+
+        self.update_order_state(conversation_id, discard)
+        return discarded
+
     @staticmethod
     def _purge_expired(connection: sqlite3.Connection, now: str | None = None) -> None:
         current_time = datetime.fromisoformat(now) if now else datetime.now(timezone.utc)

@@ -138,6 +138,81 @@ def test_agent_returns_server_generated_quote_and_stops_after_proposal(tmp_path)
     assert memory.load_order_state(conversation_id)["pending_order"]["status"] == "proposed"
 
 
+def test_advice_after_quote_searches_catalog_and_discards_only_unconfirmed_quote(tmp_path):
+    conversation_id = "advice-after-quote"
+    memory = ConversationMemory(tmp_path / "conversations.sqlite3")
+    history = [
+        {"role": "user", "content": "Je veux acheter un T-shirt coton bio."},
+        FakeMsg(tool_calls=[_call("old-search", "search_product", {"query": "T-shirt coton bio"})]).model_dump(),
+        {"role": "tool", "tool_call_id": "old-search", "content": "{}"},
+        FakeMsg(
+            tool_calls=[_call("old-proposal", "propose_order", {"product_id": 16, "quantity": 1})]
+        ).model_dump(),
+        {"role": "tool", "tool_call_id": "old-proposal", "content": "{}"},
+        {"role": "assistant", "content": "1 × T-shirt coton bio = 19.90 TND. Confirmez ?"},
+    ]
+    memory.save(conversation_id, history, create=True)
+    proposal = {
+        "product_id": 16,
+        "product_name": "T-shirt coton bio",
+        "quantity": 1,
+        "unit_price": "19.90",
+        "total": "19.90",
+        "currency": "TND",
+        "status": "proposed",
+        "order_id": None,
+    }
+    memory.update_order_state(
+        conversation_id,
+        lambda state: {**state, "pending_order": proposal},
+    )
+    search_call = _call("search", "search_product", {"query": "T-shirt coton bio"})
+    client = _fake_client(
+        FakeMsg(tool_calls=[search_call]),
+        FakeMsg(content="Le T-shirt coton bio est une option polyvalente, à 19.90 TND."),
+    )
+    with (
+        patch.object(agent, "get_client", return_value=client),
+        patch.object(agent, "get_model", return_value="test-model"),
+        patch.dict(
+            agent.TOOLS_REGISTRY,
+            {"search_product": lambda query: {"produits_trouves": [{"id": "16", "nom": "T-shirt coton bio"}]}},
+        ),
+    ):
+        result = agent.run_agent(
+            "imm je sais pas exactement, conseil?",
+            history=history,
+            conversation_id=conversation_id,
+            memory=memory,
+        )
+
+    assert [step["tool_called"] for step in result["trace"]] == ["search_product"]
+    assert "T-shirt coton bio" in result["final_response"]
+    assert client.chat.completions.create.call_count == 2  # tool call, then ReAct response
+    first_call = client.chat.completions.create.call_args_list[0].kwargs
+    assert first_call["messages"][1:3] == [
+        {"role": "assistant", "content": "1 × T-shirt coton bio = 19.90 TND. Confirmez ?"},
+        {"role": "user", "content": "imm je sais pas exactement, conseil?"},
+    ]
+    assert not any(message.get("tool_call_id") == "old-search" for message in first_call["messages"])
+    assert "tool_choice" not in first_call
+    assert [tool["function"]["name"] for tool in first_call["tools"]] == [
+        tool["function"]["name"] for tool in agent.TOOLS
+    ]
+    assert memory.load_order_state(conversation_id)["pending_order"] is None
+
+
+def test_advice_does_not_clear_an_already_created_order(order_context):
+    memory, conversation_id, _ = order_context
+    created = {"status": "created", "order_id": 123}
+    memory.update_order_state(
+        conversation_id,
+        lambda state: {**state, "pending_order": created},
+    )
+    assert memory.discard_unconfirmed_proposal(conversation_id) is False
+    assert memory.load_order_state(conversation_id)["pending_order"] == created
+
+
 def test_new_proposal_replaces_only_an_unconfirmed_proposal(order_context):
     memory, conversation_id, _ = order_context
     other_product = {**PRODUCT, "id": 30, "name": "Tote bag", "price": "15.00"}

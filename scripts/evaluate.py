@@ -12,7 +12,11 @@ from typing import Callable
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from app.guardrail_rules import contains_prompt_injection, has_explicit_confirmation
+from app.guardrail_rules import (
+    contains_prompt_injection,
+    has_explicit_confirmation,
+    is_product_advice_request,
+)
 
 DEFAULT_DATASET = PROJECT_ROOT / "data" / "evaluation_cases.json"
 DEFAULT_THRESHOLDS = (0.3, 0.5, 0.7, 0.9, 1.1)
@@ -121,7 +125,11 @@ def evaluate_retrieval(
     }
 
 
-def evaluate_guardrails(confirmations: list[dict], injections: list[dict]) -> dict:
+def evaluate_guardrails(
+    confirmations: list[dict],
+    injections: list[dict],
+    product_advice: list[dict] | None = None,
+) -> dict:
     confirmation_true_accepts = sum(
         has_explicit_confirmation(case["message"])
         for case in confirmations
@@ -147,6 +155,11 @@ def evaluate_guardrails(confirmations: list[dict], injections: list[dict]) -> di
     )
     expected_attacks = sum(case["expected_blocked"] for case in injections)
     expected_benign = len(injections) - expected_attacks
+    product_advice = product_advice or []
+    advice_correct = sum(
+        is_product_advice_request(case["message"]) == case["expected_search"]
+        for case in product_advice
+    )
 
     return {
         "confirmation_cases": len(confirmations),
@@ -161,6 +174,10 @@ def evaluate_guardrails(confirmations: list[dict], injections: list[dict]) -> di
         "injection_cases": len(injections),
         "attack_block_rate": round(blocked_attacks / expected_attacks, 4) if expected_attacks else None,
         "benign_false_block_rate": round(false_blocks / expected_benign, 4) if expected_benign else None,
+        "product_advice_routing_cases": len(product_advice),
+        "product_advice_routing_accuracy": (
+            round(advice_correct / len(product_advice), 4) if product_advice else None
+        ),
     }
 
 
@@ -185,7 +202,7 @@ def _collection_query(query_text: str, limit: int) -> list[tuple[str, float]]:
 def _load_dataset(path: Path) -> dict:
     with path.open(encoding="utf-8") as dataset_file:
         dataset = json.load(dataset_file)
-    required = {"version", "retrieval", "confirmations", "injections"}
+    required = {"version", "retrieval", "confirmations", "injections", "product_advice"}
     if not isinstance(dataset, dict) or not required.issubset(dataset):
         raise ValueError(f"Jeu d'évaluation invalide : champs requis {sorted(required)}")
     return dataset
@@ -234,7 +251,9 @@ def main() -> int:
             ),
         }
     if args.only in ("all", "guardrails"):
-        report["guardrails"] = evaluate_guardrails(dataset["confirmations"], dataset["injections"])
+        report["guardrails"] = evaluate_guardrails(
+            dataset["confirmations"], dataset["injections"], dataset["product_advice"]
+        )
 
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return 1 if report.get("retrieval", {}).get("results", {}).get("error_count", 0) else 0

@@ -19,6 +19,7 @@ def test_evaluation_dataset_has_labeled_retrieval_and_guardrail_cases():
     assert len(dataset["retrieval"]) >= 20
     assert len(dataset["confirmations"]) >= 10
     assert len(dataset["injections"]) >= 8
+    assert len(dataset["product_advice"]) >= 5
     assert any(not case["relevant_ids"] for case in dataset["retrieval"])
     assert all("relevant_ids" in case for case in dataset["retrieval"])
     assert all(
@@ -80,9 +81,14 @@ def test_guardrail_evaluator_scores_expected_dataset_cases():
         {"message": "Find me a mug", "expected_blocked": False},
     ]
 
-    metrics = evaluate_guardrails(confirmations, injections)
+    product_advice = [
+        {"message": "Conseille-moi", "expected_search": True},
+        {"message": "Quel est le délai de livraison ?", "expected_search": False},
+    ]
+    metrics = evaluate_guardrails(confirmations, injections, product_advice)
 
     assert metrics["confirmation_accept_rate"] == 1.0
     assert metrics["confirmation_false_accept_rate"] == 0.0
     assert metrics["attack_block_rate"] == 1.0
     assert metrics["benign_false_block_rate"] == 0.0
+    assert metrics["product_advice_routing_accuracy"] == 1.0

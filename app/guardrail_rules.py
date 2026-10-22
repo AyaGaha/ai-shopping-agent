@@ -51,6 +51,20 @@ INJECTION_PATTERNS = (
     re.compile(r"\b(revele|affiche|montre) (?:le )?prompt systeme\b"),
 )
 
+# Short, explicit advice requests should not be left to the model's interpretation
+# of an earlier assistant quote. Keep this deliberately small and deterministic.
+PRODUCT_ADVICE_PATTERNS = (
+    re.compile(r"\bconseil(?:le(?: moi| nous)?|lez moi)?\b"),
+    re.compile(r"\brecommand(?:e|er|ez|ation|ations)(?: moi| nous)?\b"),
+    re.compile(r"\bque me conseilles tu\b"),
+    re.compile(r"\bwhat do you recommend\b"),
+    re.compile(r"\bcan you recommend\b"),
+    re.compile(r"\bi need advice\b"),
+    re.compile(r"\bany suggestions\b"),
+    re.compile(r"\bi am not sure what to choose\b"),
+    re.compile(r"\bi don't know what to choose\b"),
+)
+
 
 def normalize_text(text: str) -> str:
     normalized = unicodedata.normalize("NFKD", text.casefold())
@@ -69,3 +83,9 @@ def has_explicit_cancellation(message: str) -> bool:
 def contains_prompt_injection(message: str) -> bool:
     normalized = normalize_text(message)
     return any(pattern.search(normalized) for pattern in INJECTION_PATTERNS)
+
+
+def is_product_advice_request(message: str) -> bool:
+    """Recognize concise FR/EN advice requests that require catalog grounding."""
+    normalized = normalize_text(message)
+    return any(pattern.search(normalized) for pattern in PRODUCT_ADVICE_PATTERNS)
