@@ -1,4 +1,4 @@
-# P059 — AI Shopping Agent
+# AI Shopping Agent
 
 Assistant d’achat avec une interface web React et une API FastAPI. Le frontend et le backend sont deux applications séparées : le frontend peut tourner sur ton PC pendant que l’API tourne sur la VM.
 
